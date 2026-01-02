@@ -53,7 +53,7 @@ var jsPsych = initJsPsych({
             fixation_sequence: fixation_sequence_MRI,
             stimulus_sequence: stimulus_sequence_MRI,
             version: 'MRI',
-            total_trials: 80
+            total_trials: 160
         };
         jsPsych.data.addProperties({
             timing_config: timingConfig
@@ -174,9 +174,9 @@ timeline.push(MRIstart);
     });
 
     /* Fixed timing sequences for MRI alignment (same for all participants) */
-    // MRI version: 80 trials (5 reps × 16 stimuli)
+    // MRI version: 160 trials (10 reps × 16 stimuli)
     // Fixation durations: 500, 750, 1000ms
-    // Pattern repeats to cover 80 trials (500, 750, 1000 repeating)
+    // Pattern repeats to cover 160 trials (500, 750, 1000 repeating)
     var fixation_sequence_MRI = [
        500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500,
         750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750,
@@ -185,8 +185,8 @@ timeline.push(MRIstart);
         750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750
     ];
     
-    // Stimulus duration fixed at 400ms for MRI
-    var stimulus_sequence_MRI = Array(80).fill(400);
+    // Stimulus duration fixed at 300ms for MRI
+    var stimulus_sequence_MRI = Array(160).fill(300);
 
     
     // Track current trial index for timing sequence
@@ -362,7 +362,7 @@ var preload = {
 var test_procedure = {
     timeline: [fixation, test_block],
     timeline_variables: test_stimulus,
-    repetitions: 5,
+    repetitions: 10,
     randomize_order: false
 };
 
@@ -443,9 +443,9 @@ timeline.push(test_procedure);
     /* start the experiment */
     console.log('[GNG] Starting experiment with', timeline.length, 'timeline items');
     console.log('[GNG] Test procedure:', {
-        repetitions: 5,
+        repetitions: 10,
         stimuli_per_repetition: 16,
-        total_test_trials: 80,
+        total_test_trials: 160,
         randomize: false
     });
     jsPsych.run(timeline);
