@@ -151,6 +151,18 @@ var MRIstart = {
 };
 timeline.push(MRIstart);
 
+var fixation_start = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<div style="font-size:60px;">+</div>',
+  choices: "NO_KEYS",
+  response_ends_trial: false,
+  trial_duration: 15000,
+  data: {
+    task: 'fixation_start'
+  }
+};	
+timeline.push(fixation_start);
+
     /* define test block */
     var base_stimuli = [
         {stimulus: "img/blue.png", data: {response: 'go'}, correct_response: '1'},
@@ -369,6 +381,18 @@ var test_procedure = {
 /* Add preload before test procedure */
 timeline.push(preload);
 timeline.push(test_procedure);
+
+var fixation_end = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<div style="font-size:60px;">+</div>',
+  choices: "NO_KEYS",
+  response_ends_trial: false,
+  trial_duration: 15000,
+  data: {
+    task: 'fixation_end'
+  }
+};	
+timeline.push(fixation_end);
 
     /* define debrief */
     var debrief_block = {
