@@ -1,0 +1,22 @@
+body {
+  background-color: black;
+}
+.jspsych-display-element {
+  font-size: 28px;
+  color: white;
+}
+.jspsych-content {
+  max-width: 65%; 
+}
+img {  
+  width: 25%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Prevent mouse interactions on test trial stimuli */
+.jspsych-image-keyboard-response img {
+  pointer-events: none;
+  cursor: default;
+  user-select: none;
+}
