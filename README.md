@@ -35,12 +35,12 @@ The Go/No-Go task measures the ability to suppress prepotent responses. Particip
 - Web server (for standalone version) or Qualtrics account (for integrated version)
 - Physical keyboard (required for responses)
 
-### Standalone Version
+### MRI Version
 
 1. Clone or download this repository
 2. Serve the files via a web server (local or remote)
-3. Open `src/index.html` in a web browser
-4. Ensure images are accessible at `src/img/`
+3. Open `index.html` in a web browser
+4. Ensure images are accessible at `img/`
 
 ## Usage
 
@@ -77,15 +77,15 @@ Task parameters can be modified in `src/config.json`:
 ### Timing Parameters
 
 - **Fixation durations**: Variable durations for jittering (500-1000ms)
-- **Stimulus durations**: How long stimuli are displayed (standalone: 400ms fixed)
+- **Stimulus durations**: How long stimuli are displayed (1000ms fixed)
 - **Post-trial gap**: Delay between trials (1000ms)
 
 ### Trial Configuration
 
 **MRI Version:**
-- 16 stimuli in fixed pattern (70% Go, 30% No-Go)
-- 5 repetitions
-- 80 total trials
+- 20 stimuli in fixed pattern (70% Go, 30% No-Go)
+- 9 repetitions
+- 180 total trials
 - Fixed order (not randomized)
 
 ### MRI Configuration
@@ -199,7 +199,7 @@ This MRI version includes extensive console logging:
 
 ### Code Structure
 
-**Standalone Version (`src/index.html`):**
+**MRI Version (`index.html`):**
 - Direct HTML/JavaScript implementation
 - Uses jsPsych framework
 - Keyboard-based instruction screens
@@ -221,7 +221,7 @@ To modify the task:
 
 - **Version**: 1.0
 - **Framework**: jsPsych 7.x
-- **Last Updated**: 2024
+- **Last Updated**: 2025
 - **GitHub Repository**: https://carolcyu.github.io/GNG_MRI/
 
 ## Technical Details
