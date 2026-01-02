@@ -115,7 +115,6 @@ console.log('[GNG] Timeline created');
         `,
         choices: "ALL_KEYS",
       response_ends_trial: true,
-        post_trial_gap: 1000
     };
     timeline.push(instructions2);
 
@@ -187,7 +186,7 @@ timeline.push(fixation_start);
     });
 
     /* Fixed timing sequences for MRI alignment (same for all participants) */
-    // MRI version: 200 trials (10 reps × 20 stimuli)
+    // MRI version: 180 trials (9 reps × 20 stimuli)
     // Fixation durations: 500-1200ms
     // AI randomized to cover 100 trials
     var fixation_sequence_MRI = [
@@ -200,8 +199,8 @@ timeline.push(fixation_start);
     600, 1200, 500, 600,
 ]; 
     
-    // Stimulus duration fixed at 900ms for MRI to allow more time to respond even after circle disappears
-    var stimulus_sequence_MRI = Array(200).fill(900);
+    // Stimulus duration fixed at 1000ms for MRI to allow more time to respond even after circle disappears
+    var stimulus_sequence_MRI = Array(180).fill(1000);
 
     
     // Track current trial index for timing sequence
@@ -378,7 +377,7 @@ var preload = {
 var test_procedure = {
     timeline: [fixation, test_block],
     timeline_variables: test_stimulus,
-    repetitions: 10,
+    repetitions: 9,
     randomize_order: false
 };
 
@@ -471,9 +470,9 @@ timeline.push(fixation_end);
     /* start the experiment */
     console.log('[GNG] Starting experiment with', timeline.length, 'timeline items');
     console.log('[GNG] Test procedure:', {
-        repetitions: 10,
+        repetitions: 9,
         stimuli_per_repetition: 20,
-        total_test_trials: 200,
+        total_test_trials: 180,
         randomize: false
     });
     jsPsych.run(timeline);
