@@ -39,7 +39,7 @@ var jsPsych = initJsPsych({
     },
     on_finish: function() {
         console.log('[GNG] Experiment completed!');
-        var allData = jsPsych.data.get();
+        var allData = jsPsych.data.get().localSave('json', 'GNG_data_task3.json');
         var responseTrials = allData.filter({task: 'response'});
         console.log('[GNG] Final statistics:', {
             total_trials: responseTrials.count(),
