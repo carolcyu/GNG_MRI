@@ -71,7 +71,7 @@ console.log('[GNG] Timeline created');
     /* define welcome message trial */
     var welcome = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: "<p>Welcome to another Task!</p><p>Press any button for instructions.</p>",
+        stimulus: "<p>The next task is a Circle Color game.</p><p>Press any button for instructions.</p>",
         choices: "ALL_KEYS",
       response_ends_trial: true,
         on_finish: function() {
@@ -199,8 +199,8 @@ timeline.push(fixation_start);
     600, 1200, 500, 600,
 ]; 
     
-    // Stimulus duration fixed at 1000ms for MRI to allow more time to respond even after circle disappears
-    var stimulus_sequence_MRI = Array(180).fill(1000);
+    // Stimulus duration fixed at 900ms for MRI to allow more time to respond even after circle disappears
+    var stimulus_sequence_MRI = Array(180).fill(900);
 
     
     // Track current trial index for timing sequence
