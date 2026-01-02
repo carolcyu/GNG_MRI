@@ -52,8 +52,8 @@ var jsPsych = initJsPsych({
         var timingConfig = {
             fixation_sequence: fixation_sequence_MRI,
             stimulus_sequence: stimulus_sequence_MRI,
-            version: 'standalone',
-            total_trials: 40
+            version: 'MRI',
+            total_trials: 80
         };
         jsPsych.data.addProperties({
             timing_config: timingConfig
@@ -185,20 +185,9 @@ timeline.push(MRIstart);
         750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750
     ];
     
-    // Stimulus durations: 2000, 2500, 3000, 3500ms
-    // Pattern repeats to cover 80 trials
-    var stimulus_sequence_MRI = [
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
-        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500
-    ];
+    // Stimulus duration fixed at 400ms for MRI
+    var stimulus_sequence_MRI = Array(80).fill(400);
+
     
     // Track current trial index for timing sequence
     var trial_counter = 0;
