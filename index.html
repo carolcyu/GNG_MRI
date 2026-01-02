@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Welcome (GNG Scanner)</title>
+    <title>NSP Task 3 GNG</title>
     <script src="lib/jspsych/jspsych.js"></script>
     <script src="lib/jspsych/plugin-image-keyboard-response.js"></script>
     <script src="lib/jspsych/plugin-html-keyboard-response.js"></script>
@@ -12,10 +12,10 @@
   </head> 
   <body></body>
   <script>
-/* TASK INFO: GNG for scanner with button responses */
+/* TASK INFO: GNG for scanner with keyboard responses */
 console.log('[GNG] Experiment initializing...');
-console.log('[GNG] Version: Standalone (Scanner)');
-console.log('[GNG] Response key: F');
+console.log('[GNG] Version: MRI');
+console.log('[GNG] Response key: 1');
 
 /* initialize jsPsych */
 var jsPsych = initJsPsych({
@@ -44,14 +44,14 @@ var jsPsych = initJsPsych({
         console.log('[GNG] Final statistics:', {
             total_trials: responseTrials.count(),
             correct_trials: responseTrials.filter({correct: true}).count(),
-            go_trials: responseTrials.filter({correct_response: 'f'}).count(),
+            go_trials: responseTrials.filter({correct_response: '1'}).count(),
             no_go_trials: responseTrials.filter({correct_response: null}).count()
         });
         
         // Add timing sequence configuration to data for MRI alignment reference
         var timingConfig = {
-            fixation_sequence: fixation_sequence_standalone,
-            stimulus_sequence: stimulus_sequence_standalone,
+            fixation_sequence: fixation_sequence_MRI,
+            stimulus_sequence: stimulus_sequence_MRI,
             version: 'standalone',
             total_trials: 40
         };
@@ -70,9 +70,10 @@ console.log('[GNG] Timeline created');
 
     /* define welcome message trial */
     var welcome = {
-        type: jsPsychHtmlButtonResponse,
+        type: jsPsychHtmlKeyboardResponse,
         stimulus: "<p>Welcome to another Task!</p><p>Press any button for instructions.</p>",
-        choices: ['NEXT'],
+        choices: "ALL_KEYS",
+      response_ends_trial: true,
         on_finish: function() {
             console.log('[GNG] Welcome screen completed');
         }
@@ -81,45 +82,49 @@ console.log('[GNG] Timeline created');
 
     /* define instructions trial */
     var instructions = {
-        type: jsPsychHtmlButtonResponse,
+        type: jsPsychHtmlKeyboardResponse,
         stimulus: "<p>In this experiment, a circle will appear in the center of the screen.</p>",
-        choices: ['NEXT']
+        choices: "ALL_KEYS",
+      response_ends_trial: true,
     };
     timeline.push(instructions);
 
     var instructions1 = {
-        type: jsPsychHtmlButtonResponse,
+        type: jsPsychHtmlKeyboardResponse,
         stimulus: `
-            <p>If the circle is <strong>blue</strong>, <u>press the letter F key</u> as fast as you can.</p>
+            <p>If the circle is <strong>blue</strong>, <u>press the button closest to the cord with your index finger \</u> as fast as you can.</p>
             <div class='left center-content'>
                 <img src='img/blue.png' alt='Blue circle'>
-                <p class='small' style="color: dodgerblue;"><strong>Press the F key</strong></p>
+                <p class='small' style="color: dodgerblue;"><strong>Press the button</strong></p>
             </div>
         `,
-        choices: ['NEXT']
+        choices: "ALL_KEYS",
+      response_ends_trial: true,
     };
     timeline.push(instructions1);
 
     var instructions2 = {
-        type: jsPsychHtmlButtonResponse,
+        type: jsPsychHtmlKeyboardResponse,
         stimulus: `
-            <p>If the circle is <strong>orange</strong>, <u>do not press any key</u>.</p>
+            <p>If the circle is <strong>orange</strong>, <u>do not press any buttons</u>.</p>
             <div class='right center-content'>
                 <img src='img/orange.png' alt='Orange circle'>
-                <p class='small' style="color: coral;"><strong>Do not press a key</strong></p>
+                <p class='small' style="color: coral;"><strong>Do not press any buttons</strong></p>
             </div>
-            <br><br><p><i>When you are ready, press any key to begin.</i></p>
+            <br><br><p><i>When you are ready, press any button to begin.</i></p>
         `,
-        choices: ['NEXT'],
+        choices: "ALL_KEYS",
+      response_ends_trial: true,
         post_trial_gap: 1000
     };
     timeline.push(instructions2);
 
     /*questions for the examiner*/
     var questions = {
-        type: jsPsychHtmlButtonResponse,
+        type: jsPsychHtmlKeyboardResponse,
         stimulus: "<p>If you have questions or concerns, please signal to the examiner.</p><p>If not, press any button to continue.</p>",
-        choices: ['NEXT']
+        choices: "ALL_KEYS",
+      response_ends_trial: true,
     };
     timeline.push(questions);
 
@@ -147,25 +152,53 @@ var MRIstart = {
 timeline.push(MRIstart);
 
     /* define test block */
-    var test_stimuli = [
-        {stimulus: "img/blue.png", data: {response: 'go'}, correct_response: 'f'},
+    var base_stimuli = [
+        {stimulus: "img/blue.png", data: {response: 'go'}, correct_response: '1'},
         {stimulus: "img/orange.png", data: {response: 'no-go'}, correct_response: null}
     ];
     
+    // Generate stimulus array with desired Go/No-Go ratio (approximately 70% Go, 30% No-Go)
+    // Pattern: Go, No-Go, Go, Go, No-Go, Go, No-Go, Go, Go, Go, No-Go, Go, Go, Go, No-Go, No-Go
+    var stimulus_pattern = [
+        'go', 'no-go', 'go', 'go', 'no-go', 'go', 'no-go', 'go', 
+        'go', 'go', 'no-go', 'go', 'go', 'go', 'no-go', 'no-go'
+    ];
+
+     var test_stimulus = stimulus_pattern.map(function(type) {
+        return base_stimuli.find(function(s) { return s.data.response === type; });
+    });
+    console.log('[GNG] Stimulus array generated:', {
+        total_stimuli: test_stimulus.length,
+        go_count: test_stimulus.filter(function(s) { return s.data.response === 'go'; }).length,
+        no_go_count: test_stimulus.filter(function(s) { return s.data.response === 'no-go'; }).length
+    });
+
     /* Fixed timing sequences for MRI alignment (same for all participants) */
-    // Standalone version: 40 trials (20 reps × 2 stimuli)
-    // Fixation durations: 250, 500, 750, 1000, 1250, 1500, 1750, 2000ms
-    // Pattern repeats to cover 40 trials
-    var fixation_sequence_standalone = [
-        500, 1000, 250, 1750, 750, 1500, 1250, 2000,
-        250, 1000, 500, 1500, 750, 1750, 1250, 2000,
-        500, 750, 1000, 1250, 250, 1500, 1750, 2000,
-        750, 1000, 500, 2000, 250, 1250, 1500, 1750,
-        1000, 500, 750, 1500, 250, 1250, 1750, 2000
+    // MRI version: 80 trials (5 reps × 16 stimuli)
+    // Fixation durations: 500, 750, 1000ms
+    // Pattern repeats to cover 80 trials (500, 750, 1000 repeating)
+    var fixation_sequence_MRI = [
+       500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500,
+        750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750,
+        1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000,
+        500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500,
+        750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750
     ];
     
-    // Stimulus duration is fixed at 1000ms for standalone
-    var stimulus_sequence_standalone = Array(40).fill(1000);
+    // Stimulus durations: 2000, 2500, 3000, 3500ms
+    // Pattern repeats to cover 80 trials
+    var stimulus_sequence_MRI = [
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500,
+        2000, 2500, 3000, 3500, 2000, 2500, 3000, 3500
+    ];
     
     // Track current trial index for timing sequence
     var trial_counter = 0;
@@ -174,18 +207,19 @@ timeline.push(MRIstart);
         type: jsPsychHtmlKeyboardResponse,
         stimulus: '<div style="font-size:60px;">+</div>',
         choices: "NO_KEYS",
-        trial_duration: function(){
-            var index = trial_counter;
-            var duration = fixation_sequence_standalone[index % fixation_sequence_standalone.length];
-            console.log('[GNG] Fixation duration:', duration + 'ms', '(index:', index + ')');
-            return duration;
-        },
+        response_ends_trial: false,
         data: {
             task: 'fixation'
         },
+        trial_duration: function(){
+            var index = trial_counter;
+            var duration = fixation_sequence_MRI[index % fixation_sequence_MRI.length];
+            console.log('[GNG] Fixation duration:', duration + 'ms', '(index:', index + ')');
+            return duration;
+        },
         on_start: function() {
             var index = trial_counter;
-            var duration = fixation_sequence_standalone[index % fixation_sequence_standalone.length];
+            var duration = fixation_sequence_MRI[index % fixation_sequence_MRI.length];
             console.log('[GNG] Fixation cross displayed (trial', index + ')');
             // Store timing data for MRI alignment
             var trial = jsPsych.getCurrentTrial();
@@ -196,7 +230,7 @@ timeline.push(MRIstart);
         },
         on_finish: function(data) {
             var index = trial_counter;
-            var duration = fixation_sequence_standalone[index % fixation_sequence_standalone.length];
+            var duration = fixation_sequence_MRI[index % fixation_sequence_MRI.length];
             data.fixation_duration = duration;
             data.trial_sequence_index = index;
             // Don't increment here - increment after test_block finishes
@@ -206,16 +240,18 @@ timeline.push(MRIstart);
     var test_block = {
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('stimulus'),
-        choices: ['F'],
+        choices: ['1'],
         trial_duration: function() {
-            // Use fixed stimulus duration (1000ms for standalone)
+            // Use fixed stimulus duration for MRI ? < this could be error from Michael's Qualtrics code
             // Use same index as fixation (they're a pair)
             var index = trial_counter;
-            var duration = stimulus_sequence_standalone[index % stimulus_sequence_standalone.length];
+            var duration = stimulus_sequence_MRI[index % stimulus_sequence_MRI.length];
             console.log('[GNG] Stimulus duration:', duration + 'ms', '(index:', index + ')');
             return duration;
         },
-        response_ends_trial: false,
+         response_ends_trial: false,
+        stimulus_height: 300,
+        maintain_aspect_ratio: true,
         data: {
             task: 'response',
             correct_response: jsPsych.timelineVariable('correct_response'),
@@ -249,7 +285,7 @@ timeline.push(MRIstart);
             var trial = jsPsych.getCurrentTrial();
             // Use same index as fixation (they're a pair)
             var index = trial_counter;
-            var duration = stimulus_sequence_standalone[index % stimulus_sequence_standalone.length];
+            var duration = stimulus_sequence_MRI[index % stimulus_sequence_MRI.length];
             var trialType = trial.data.correct_response !== null ? 'GO' : 'NO-GO';
             console.log('[GNG] Stimulus displayed:', {
                 type: trialType,
@@ -278,7 +314,7 @@ timeline.push(MRIstart);
         on_finish: function(data){
             // Use same index as fixation (they're a pair)
             var index = trial_counter;
-            var duration = stimulus_sequence_standalone[index % stimulus_sequence_standalone.length];
+            var duration = stimulus_sequence_MRI[index % stimulus_sequence_MRI.length];
             var trialType = data.correct_response !== null ? 'GO' : 'NO-GO';
             
             // Store timing data for MRI alignment
@@ -289,7 +325,7 @@ timeline.push(MRIstart);
             // Increment counter after test_block finishes (both fixation and test_block done)
             trial_counter++;
             
-            // Check if it is a GO trial (correct_response is 'f')
+            // Check if it is a GO trial (correct_response is '1')
             if (data.correct_response !== null) {
                 // It is correct if the key pressed matches the correct response
                 data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
@@ -336,9 +372,9 @@ var preload = {
 /* define test procedure */
 var test_procedure = {
     timeline: [fixation, test_block],
-    timeline_variables: test_stimuli,
-    repetitions: 20,
-    randomize_order: true
+    timeline_variables: test_stimulus,
+    repetitions: 5,
+    randomize_order: false
 };
 
 /* Add preload before test procedure */
@@ -360,7 +396,7 @@ timeline.push(test_procedure);
             
             var correct_trials = trials.filter({correct: true});
             var correct_count = correct_trials.count();
-            var go_trials = trials.filter({correct_response: 'f'});
+            var go_trials = trials.filter({correct_response: '1'});
             var no_go_trials = trials.filter({correct_response: null});
             var go_correct = go_trials.filter({correct: true});
             var no_go_correct = no_go_trials.filter({correct: true});
@@ -418,10 +454,10 @@ timeline.push(test_procedure);
     /* start the experiment */
     console.log('[GNG] Starting experiment with', timeline.length, 'timeline items');
     console.log('[GNG] Test procedure:', {
-        repetitions: 20,
-        stimuli_per_repetition: 2,
-        total_test_trials: 40,
-        randomize: true
+        repetitions: 5,
+        stimuli_per_repetition: 16,
+        total_test_trials: 80,
+        randomize: false
     });
     jsPsych.run(timeline);
 
