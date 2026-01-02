@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Welcome (GNG Scanner)</title>
+    <script src="lib/jspsych/jspsych.js"></script>
+    <script src="lib/jspsych/plugin-image-keyboard-response.js"></script>
+    <script src="lib/jspsych/plugin-html-keyboard-response.js"></script>
+    <script src="lib/jspsych/plugin-html-button-response.js"></script>
+    <script src="lib/jspsych/plugin-preload.js"></script>
+    <link href="lib/jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="lib/jspsych/my_experiment_style_GNG.css">
+  </head> 
+  <body></body>
+  <script>
+/* TASK INFO: GNG for scanner with button responses */
+console.log('[GNG] Experiment initializing...');
+console.log('[GNG] Version: Standalone (Scanner)');
+console.log('[GNG] Response key: F');
+
+/* initialize jsPsych */
+var jsPsych = initJsPsych({
+    on_trial_start: function() {
+        var trial = jsPsych.getCurrentTrial();
+        console.log('[GNG] Trial starting:', {
+            trial_type: trial.type,
+            task: trial.data ? trial.data.task : 'unknown',
+            trial_index: jsPsych.getProgress().current_trial_global
+        });
+    },
+    on_trial_finish: function(data) {
+        console.log('[GNG] Trial finished:', {
+            trial_type: data.trial_type,
+            task: data.task || 'unknown',
+            response: data.response,
+            rt: data.rt,
+            correct: data.correct,
+            trial_index: jsPsych.getProgress().current_trial_global
+        });
+    },
+    on_finish: function() {
+        console.log('[GNG] Experiment completed!');
+        var allData = jsPsych.data.get();
+        var responseTrials = allData.filter({task: 'response'});
+        console.log('[GNG] Final statistics:', {
+            total_trials: responseTrials.count(),
+            correct_trials: responseTrials.filter({correct: true}).count(),
+            go_trials: responseTrials.filter({correct_response: 'f'}).count(),
+            no_go_trials: responseTrials.filter({correct_response: null}).count()
+        });
+        
+        // Add timing sequence configuration to data for MRI alignment reference
+        var timingConfig = {
+            fixation_sequence: fixation_sequence_standalone,
+            stimulus_sequence: stimulus_sequence_standalone,
+            version: 'standalone',
+            total_trials: 40
+        };
+        jsPsych.data.addProperties({
+            timing_config: timingConfig
+        });
+        
+        console.log('[GNG] Timing configuration saved:', timingConfig);
+        jsPsych.data.displayData();
+    }
+}); 
+
+/* create timeline */
+var timeline = [];
+console.log('[GNG] Timeline created');
+
+    /* define welcome message trial */
+    var welcome = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: "<p>Welcome to another Task!</p><p>Press any button for instructions.</p>",
+        choices: ['NEXT'],
+        on_finish: function() {
+            console.log('[GNG] Welcome screen completed');
+        }
+    };
+    timeline.push(welcome);
+
+    /* define instructions trial */
+    var instructions = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: "<p>In this experiment, a circle will appear in the center of the screen.</p>",
+        choices: ['NEXT']
+    };
+    timeline.push(instructions);
+
+    var instructions1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <p>If the circle is <strong>blue</strong>, <u>press the letter F key</u> as fast as you can.</p>
+            <div class='left center-content'>
+                <img src='img/blue.png' alt='Blue circle'>
+                <p class='small' style="color: dodgerblue;"><strong>Press the F key</strong></p>
+            </div>
+        `,
+        choices: ['NEXT']
+    };
+    timeline.push(instructions1);
+
+    var instructions2 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <p>If the circle is <strong>orange</strong>, <u>do not press any key</u>.</p>
+            <div class='right center-content'>
+                <img src='img/orange.png' alt='Orange circle'>
+                <p class='small' style="color: coral;"><strong>Do not press a key</strong></p>
+            </div>
+            <br><br><p><i>When you are ready, press any key to begin.</i></p>
+        `,
+        choices: ['NEXT'],
+        post_trial_gap: 1000
+    };
+    timeline.push(instructions2);
+
+    /*questions for the examiner*/
+    var questions = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: "<p>If you have questions or concerns, please signal to the examiner.</p><p>If not, press any button to continue.</p>",
+        choices: ['NEXT']
+    };
+    timeline.push(questions);
+
+/*define trial awaiting for the scanner keyboard button #5 */
+var MRIstart = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "<p>Please wait while the scanner starts up. This will take 10 seconds.</p>",
+    choices: ['5'],
+    prompt: "<p>A color circle will appear when the task starts.</p>",
+    response_ends_trial: true,
+    data: {
+        task: 'mri_start'
+    },
+    on_start: function() {
+        console.log('[GNG] Waiting for MRI scanner trigger (key 5)...');
+    },
+    on_finish: function(data) {
+        console.log('[GNG] MRI trigger received:', {
+            key: data.response,
+            rt: data.rt,
+            timestamp: new Date().toISOString()
+        });
+    }
+};
+timeline.push(MRIstart);
+
+    /* define test block */
+    var test_stimuli = [
+        {stimulus: "img/blue.png", data: {response: 'go'}, correct_response: 'f'},
+        {stimulus: "img/orange.png", data: {response: 'no-go'}, correct_response: null}
+    ];
+    
+    /* Fixed timing sequences for MRI alignment (same for all participants) */
+    // Standalone version: 40 trials (20 reps × 2 stimuli)
+    // Fixation durations: 250, 500, 750, 1000, 1250, 1500, 1750, 2000ms
+    // Pattern repeats to cover 40 trials
+    var fixation_sequence_standalone = [
+        500, 1000, 250, 1750, 750, 1500, 1250, 2000,
+        250, 1000, 500, 1500, 750, 1750, 1250, 2000,
+        500, 750, 1000, 1250, 250, 1500, 1750, 2000,
+        750, 1000, 500, 2000, 250, 1250, 1500, 1750,
+        1000, 500, 750, 1500, 250, 1250, 1750, 2000
+    ];
+    
+    // Stimulus duration is fixed at 1000ms for standalone
+    var stimulus_sequence_standalone = Array(40).fill(1000);
+    
+    // Track current trial index for timing sequence
+    var trial_counter = 0;
+    
+    var fixation = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<div style="font-size:60px;">+</div>',
+        choices: "NO_KEYS",
+        trial_duration: function(){
+            var index = trial_counter;
+            var duration = fixation_sequence_standalone[index % fixation_sequence_standalone.length];
+            console.log('[GNG] Fixation duration:', duration + 'ms', '(index:', index + ')');
+            return duration;
+        },
+        data: {
+            task: 'fixation'
+        },
+        on_start: function() {
+            var index = trial_counter;
+            var duration = fixation_sequence_standalone[index % fixation_sequence_standalone.length];
+            console.log('[GNG] Fixation cross displayed (trial', index + ')');
+            // Store timing data for MRI alignment
+            var trial = jsPsych.getCurrentTrial();
+            if (trial && trial.data) {
+                trial.data.fixation_duration = duration;
+                trial.data.trial_sequence_index = index;
+            }
+        },
+        on_finish: function(data) {
+            var index = trial_counter;
+            var duration = fixation_sequence_standalone[index % fixation_sequence_standalone.length];
+            data.fixation_duration = duration;
+            data.trial_sequence_index = index;
+            // Don't increment here - increment after test_block finishes
+        }
+    };
+
+    var test_block = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        choices: ['F'],
+        trial_duration: function() {
+            // Use fixed stimulus duration (1000ms for standalone)
+            // Use same index as fixation (they're a pair)
+            var index = trial_counter;
+            var duration = stimulus_sequence_standalone[index % stimulus_sequence_standalone.length];
+            console.log('[GNG] Stimulus duration:', duration + 'ms', '(index:', index + ')');
+            return duration;
+        },
+        response_ends_trial: false,
+        data: {
+            task: 'response',
+            correct_response: jsPsych.timelineVariable('correct_response'),
+            response_type: jsPsych.timelineVariable('response')
+        },
+        on_load: function() {
+            // Prevent mouse clicks from advancing trials
+            var displayElement = document.querySelector('.jspsych-display-element');
+            if (displayElement) {
+                // Use capture phase to intercept clicks early
+                var clickHandler = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('[GNG] Mouse click prevented on test trial');
+                    return false;
+                };
+                displayElement.addEventListener('click', clickHandler, true);
+                displayElement.addEventListener('mousedown', clickHandler, true);
+                displayElement.addEventListener('mouseup', clickHandler, true);
+                
+                // Also prevent clicks on images
+                var images = displayElement.querySelectorAll('img');
+                images.forEach(function(img) {
+                    img.style.pointerEvents = 'none';
+                    img.addEventListener('click', clickHandler, true);
+                });
+            }
+        },
+        on_start: function() {
+            var trial = jsPsych.getCurrentTrial();
+            // Use same index as fixation (they're a pair)
+            var index = trial_counter;
+            var duration = stimulus_sequence_standalone[index % stimulus_sequence_standalone.length];
+            var trialType = trial.data.correct_response !== null ? 'GO' : 'NO-GO';
+            console.log('[GNG] Stimulus displayed:', {
+                type: trialType,
+                stimulus: trial.stimulus,
+                expected_response: trial.data.correct_response || 'NO RESPONSE',
+                duration: duration + 'ms',
+                index: index
+            });
+            
+            // Store timing data for MRI alignment
+            if (trial && trial.data) {
+                trial.data.stimulus_duration = duration;
+                trial.data.trial_sequence_index = index;
+                trial.data.stimulus_type = trial.data.response_type;
+            }
+            
+            // Ensure pointer events are disabled on stimulus images
+            setTimeout(function() {
+                var images = document.querySelectorAll('.jspsych-display-element img');
+                images.forEach(function(img) {
+                    img.style.pointerEvents = 'none';
+                    img.style.cursor = 'default';
+                });
+            }, 50);
+        },
+        on_finish: function(data){
+            // Use same index as fixation (they're a pair)
+            var index = trial_counter;
+            var duration = stimulus_sequence_standalone[index % stimulus_sequence_standalone.length];
+            var trialType = data.correct_response !== null ? 'GO' : 'NO-GO';
+            
+            // Store timing data for MRI alignment
+            data.stimulus_duration = duration;
+            data.trial_sequence_index = index;
+            data.stimulus_type = data.response_type;
+            
+            // Increment counter after test_block finishes (both fixation and test_block done)
+            trial_counter++;
+            
+            // Check if it is a GO trial (correct_response is 'f')
+            if (data.correct_response !== null) {
+                // It is correct if the key pressed matches the correct response
+                data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
+                console.log('[GNG] GO trial result:', {
+                    type: 'GO',
+                    response: data.response,
+                    expected: data.correct_response,
+                    correct: data.correct,
+                    rt: data.rt,
+                    duration: duration + 'ms',
+                    index: index
+                });
+            } 
+            // Otherwise, it is a NO-GO trial (correct_response is null)
+            else {
+                // It is correct ONLY if no key was pressed (response is null)
+                data.correct = (data.response === null);
+                console.log('[GNG] NO-GO trial result:', {
+                    type: 'NO-GO',
+                    response: data.response,
+                    expected: 'NO RESPONSE',
+                    correct: data.correct,
+                    rt: data.rt || 'N/A',
+                    duration: duration + 'ms',
+                    index: index
+                });
+            }
+        }
+    };
+
+/* Preload images before test procedure */
+var preload = {
+    type: jsPsychPreload,
+    auto_preload: true,
+    on_finish: function(data) {
+        console.log('[GNG] Preload completed:', {
+            success_count: data.success_count,
+            fail_count: data.fail_count,
+            errors: data.errors
+        });
+    }
+};
+
+/* define test procedure */
+var test_procedure = {
+    timeline: [fixation, test_block],
+    timeline_variables: test_stimuli,
+    repetitions: 20,
+    randomize_order: true
+};
+
+/* Add preload before test procedure */
+timeline.push(preload);
+timeline.push(test_procedure);
+
+    /* define debrief */
+    var debrief_block = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function() {
+            var trials = jsPsych.data.get().filter({task: 'response'});
+            var total = trials.count();
+            
+            // Error handling: check if we have any trials
+            if (total === 0) {
+                console.error('[GNG] ERROR: No response trials found for debrief');
+                return '<p>No response trials found.</p><p>Press any key to complete the experiment.</p>';
+            }
+            
+            var correct_trials = trials.filter({correct: true});
+            var correct_count = correct_trials.count();
+            var go_trials = trials.filter({correct_response: 'f'});
+            var no_go_trials = trials.filter({correct_response: null});
+            var go_correct = go_trials.filter({correct: true});
+            var no_go_correct = no_go_trials.filter({correct: true});
+            
+            // Calculate accuracy with error handling
+            var accuracy = total > 0 ? Math.round((correct_count / total) * 100) : 0;
+            if (isNaN(accuracy)) {
+                accuracy = 0;
+            }
+            
+            // Calculate RT with error handling (only for correct Go trials)
+            var go_correct_rt = go_correct.select('rt').mean();
+            var rt = go_correct_rt && !isNaN(go_correct_rt) ? Math.round(go_correct_rt) : 0;
+            
+            // Calculate Go/No-Go specific accuracies with error handling
+            var go_count = go_trials.count();
+            var go_correct_count = go_correct.count();
+            var go_accuracy = go_count > 0 ? Math.round((go_correct_count / go_count) * 100) : 0;
+            if (isNaN(go_accuracy)) go_accuracy = 0;
+            
+            var no_go_count = no_go_trials.count();
+            var no_go_correct_count = no_go_correct.count();
+            var no_go_accuracy = no_go_count > 0 ? Math.round((no_go_correct_count / no_go_count) * 100) : 0;
+            if (isNaN(no_go_accuracy)) no_go_accuracy = 0;
+            
+            var stats = {
+                total_trials: total,
+                correct_trials: correct_count,
+                accuracy: accuracy + '%',
+                avg_rt: rt > 0 ? rt + 'ms' : 'N/A',
+                go_trials: go_count,
+                go_correct: go_correct_count,
+                go_accuracy: go_accuracy + '%',
+                no_go_trials: no_go_count,
+                no_go_correct: no_go_correct_count,
+                no_go_accuracy: no_go_accuracy + '%'
+            };
+            
+            console.log('[GNG] Debrief statistics:', stats);
+            console.log('[GNG] Accuracy calculation debug:', {
+                total: total,
+                correct: correct_count,
+                accuracy: accuracy,
+                calculation: correct_count + ' / ' + total + ' * 100 = ' + accuracy + '%'
+            });
+
+            var rtText = rt > 0 ? `<p>Your average response time was ${rt}ms.</p>` : '';
+            return `<p>You responded correctly on <strong>${accuracy}%</strong> of the trials.</p>
+                    ${rtText}
+                    <p>Press any key to complete the experiment. Thank you!</p>`;
+        }
+    };
+    timeline.push(debrief_block);
+
+    /* start the experiment */
+    console.log('[GNG] Starting experiment with', timeline.length, 'timeline items');
+    console.log('[GNG] Test procedure:', {
+        repetitions: 20,
+        stimuli_per_repetition: 2,
+        total_test_trials: 40,
+        randomize: true
+    });
+    jsPsych.run(timeline);
+
+  </script>
+</html>
