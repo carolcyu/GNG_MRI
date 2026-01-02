@@ -53,7 +53,7 @@ var jsPsych = initJsPsych({
             fixation_sequence: fixation_sequence_MRI,
             stimulus_sequence: stimulus_sequence_MRI,
             version: 'MRI',
-            total_trials: 160
+            total_trials: 220
         };
         jsPsych.data.addProperties({
             timing_config: timingConfig
@@ -170,10 +170,11 @@ timeline.push(fixation_start);
     ];
     
     // Generate stimulus array with desired Go/No-Go ratio (approximately 70% Go, 30% No-Go)
-    // Pattern: Go, No-Go, Go, Go, No-Go, Go, No-Go, Go, Go, Go, No-Go, Go, Go, Go, No-Go, No-Go
+    // Pattern: Go, No-Go, Go, Go, No-Go, Go, No-Go, Go, Go, Go, No-Go, Go, Go, Go, No-Go, No-Go, Go, Go, Go, Go
     var stimulus_pattern = [
         'go', 'no-go', 'go', 'go', 'no-go', 'go', 'no-go', 'go', 
-        'go', 'go', 'no-go', 'go', 'go', 'go', 'no-go', 'no-go'
+        'go', 'go', 'no-go', 'go', 'go', 'go', 'no-go', 'no-go',
+        'go','go','go','go',
     ];
 
      var test_stimulus = stimulus_pattern.map(function(type) {
@@ -186,19 +187,21 @@ timeline.push(fixation_start);
     });
 
     /* Fixed timing sequences for MRI alignment (same for all participants) */
-    // MRI version: 160 trials (10 reps × 16 stimuli)
-    // Fixation durations: 500, 750, 1000ms
-    // Pattern repeats to cover 160 trials (500, 750, 1000 repeating)
+    // MRI version: 220 trials (11 reps × 20 stimuli)
+    // Fixation durations: 500-1200ms
+    // AI randomized to cover 100 trials
     var fixation_sequence_MRI = [
-       500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500,
-        750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750,
-        1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000,
-        500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500,
-        750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750, 1000, 500, 750
-    ];
+    500, 900, 500, 1200, 600, 500, 900, 600, 500, 500, 600, 1200, 500, 900, 600, 500,
+    1200, 500, 600, 900, 500, 600, 500, 900, 1200, 600, 500, 600, 900, 500, 1200, 600,
+    500, 500, 900, 600, 1200, 500, 600, 500, 900, 600, 500, 1200, 500, 600, 900, 600,
+    500, 1200, 500, 500, 900, 600, 500, 600, 1200, 900, 500, 500, 600, 900, 500, 1200,
+    500, 600, 500, 900, 600, 1200, 500, 600, 500, 900, 600, 500, 500, 1200, 900, 600,
+    500, 600, 900, 500, 1200, 600, 500, 500, 900, 600, 500, 1200, 600, 500, 900, 500,
+    600, 1200, 500, 600, 800, 500, 1100, 600, 500, 900, 500, 1200, 700, 600,
+]; 
     
     // Stimulus duration fixed at 300ms for MRI
-    var stimulus_sequence_MRI = Array(160).fill(300);
+    var stimulus_sequence_MRI = Array(220).fill(300);
 
     
     // Track current trial index for timing sequence
@@ -374,7 +377,7 @@ var preload = {
 var test_procedure = {
     timeline: [fixation, test_block],
     timeline_variables: test_stimulus,
-    repetitions: 10,
+    repetitions: 11,
     randomize_order: false
 };
 
@@ -467,9 +470,9 @@ timeline.push(fixation_end);
     /* start the experiment */
     console.log('[GNG] Starting experiment with', timeline.length, 'timeline items');
     console.log('[GNG] Test procedure:', {
-        repetitions: 10,
-        stimuli_per_repetition: 16,
-        total_test_trials: 160,
+        repetitions: 11,
+        stimuli_per_repetition: 20,
+        total_test_trials: 220,
         randomize: false
     });
     jsPsych.run(timeline);
