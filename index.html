@@ -53,7 +53,7 @@ var jsPsych = initJsPsych({
             fixation_sequence: fixation_sequence_MRI,
             stimulus_sequence: stimulus_sequence_MRI,
             version: 'MRI',
-            total_trials: 220
+            total_trials: 200
         };
         jsPsych.data.addProperties({
             timing_config: timingConfig
@@ -187,7 +187,7 @@ timeline.push(fixation_start);
     });
 
     /* Fixed timing sequences for MRI alignment (same for all participants) */
-    // MRI version: 220 trials (11 reps × 20 stimuli)
+    // MRI version: 200 trials (10 reps × 20 stimuli)
     // Fixation durations: 500-1200ms
     // AI randomized to cover 100 trials
     var fixation_sequence_MRI = [
@@ -197,11 +197,11 @@ timeline.push(fixation_start);
     500, 1200, 500, 500, 900, 600, 500, 600, 1200, 900, 500, 500, 600, 900, 500, 1200,
     500, 600, 500, 900, 600, 1200, 500, 600, 500, 900, 600, 500, 500, 1200, 900, 600,
     500, 600, 900, 500, 1200, 600, 500, 500, 900, 600, 500, 1200, 600, 500, 900, 500,
-    600, 1200, 500, 600, 800, 500, 1100, 600, 500, 900, 500, 1200, 700, 600,
+    600, 1200, 500, 600,
 ]; 
     
-    // Stimulus duration fixed at 300ms for MRI
-    var stimulus_sequence_MRI = Array(220).fill(300);
+    // Stimulus duration fixed at 900ms for MRI to allow more time to respond even after circle disappears
+    var stimulus_sequence_MRI = Array(200).fill(900);
 
     
     // Track current trial index for timing sequence
@@ -245,15 +245,16 @@ timeline.push(fixation_start);
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('stimulus'),
         choices: ['1'],
+        stimulus_duration: 500, 
         trial_duration: function() {
-            // Use fixed stimulus duration for MRI ? < this could be error from Michael's Qualtrics code
+            // Use fixed stimulus duration for MRI
             // Use same index as fixation (they're a pair)
             var index = trial_counter;
             var duration = stimulus_sequence_MRI[index % stimulus_sequence_MRI.length];
             console.log('[GNG] Stimulus duration:', duration + 'ms', '(index:', index + ')');
             return duration;
         },
-         response_ends_trial: false,
+        response_ends_trial: false,
         stimulus_height: 300,
         maintain_aspect_ratio: true,
         data: {
@@ -377,7 +378,7 @@ var preload = {
 var test_procedure = {
     timeline: [fixation, test_block],
     timeline_variables: test_stimulus,
-    repetitions: 11,
+    repetitions: 10,
     randomize_order: false
 };
 
@@ -470,9 +471,9 @@ timeline.push(fixation_end);
     /* start the experiment */
     console.log('[GNG] Starting experiment with', timeline.length, 'timeline items');
     console.log('[GNG] Test procedure:', {
-        repetitions: 11,
+        repetitions: 10,
         stimuli_per_repetition: 20,
-        total_test_trials: 220,
+        total_test_trials: 200,
         randomize: false
     });
     jsPsych.run(timeline);
