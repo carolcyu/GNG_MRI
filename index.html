@@ -39,29 +39,28 @@ var jsPsych = initJsPsych({
     },
     on_finish: function() {
         console.log('[GNG] Experiment completed!');
-        var allData = jsPsych.data.get().localSave('json', 'GNG_data_task3.json');
         var responseTrials = allData.filter({task: 'response'});
-        console.log('[GNG] Final statistics:', {
+        var stats = {
             total_trials: responseTrials.count(),
             correct_trials: responseTrials.filter({correct: true}).count(),
             go_trials: responseTrials.filter({correct_response: '1'}).count(),
             no_go_trials: responseTrials.filter({correct_response: null}).count()
-        });
+        };
+        console.log('[GNG] Final statistics:', stats);
         
         // Add timing sequence configuration to data for MRI alignment reference
         var timingConfig = {
             fixation_sequence: fixation_sequence_MRI,
             stimulus_sequence: stimulus_sequence_MRI,
             version: 'MRI',
-            total_trials: 200
+            total_trials: 180
         };
         jsPsych.data.addProperties({
-            timing_config: timingConfig
+            timing_config: timingConfig,
+            summary_stats: stats
         });
         
         console.log('[GNG] Timing configuration saved:', timingConfig);
-        jsPsych.data.displayData();
-
       jsPsych.data.get().localSave('json', 'GNG_data_task3.json');
 
     }
