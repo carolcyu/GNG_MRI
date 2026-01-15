@@ -39,6 +39,7 @@ var jsPsych = initJsPsych({
     },
     on_finish: function() {
         console.log('[GNG] Experiment completed!');
+        var allData = jsPsych.data.get();
         var responseTrials = allData.filter({task: 'response'});
         var stats = {
             total_trials: responseTrials.count(),
